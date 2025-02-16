@@ -1,0 +1,50 @@
+name: CI/CD Pipeline for Loan Approval Prediction
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow when pushing to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Trigger the workflow for pull requests to the 'main' branch
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest  # The environment to run the job on
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Checkout the code from your GitHub repo
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Use Python 3.9 (adjust if needed)
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt  # Install the required Python dependencies
+
+  run-pipeline:
+    runs-on: ubuntu-latest  # The environment to run the pipeline job on
+    needs: setup  # Only run after the 'setup' job has completed successfully
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Checkout the code from your GitHub repo
+
+      - name: Run pipeline
+        run: python pipeline.py  # Run your pipeline script
+
+  build-docker:
+    runs-on: ubuntu-latest  # Run on the latest Ubuntu image
+    needs: run-pipeline  # Only run after the pipeline job completes successfully
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Checkout the code from your GitHub repo
+
+      - name: Build Docker Image
+        run: |
+          docker build -t my-app .  # Build your Docker image (my-app)
