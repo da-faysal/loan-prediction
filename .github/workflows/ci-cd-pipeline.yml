@@ -3,7 +3,7 @@ name: Run pipeline and build Docker image
 on:
   push:
     branches:
-      - main  # Change this if needed
+      - main  # Change this if needed ok
 
 jobs:
   run-pipeline:
