@@ -1,50 +1,44 @@
-name: CI/CD Pipeline for Loan Approval Prediction
+name: Run pipeline and build Docker image
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow when pushing to the 'main' branch
-  pull_request:
-    branches:
-      - main  # Trigger the workflow for pull requests to the 'main' branch
+      - main  # or any other branch you want to monitor
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest  # The environment to run the job on
+  run-pipeline:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # Checkout the code from your GitHub repo
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.10'  # specify the Python version
 
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt  # Install the required Python dependencies
+        run: pip install -r loan_prediction/requirements.txt  # make sure you have a requirements.txt file in the loan_prediction folder
 
-  run-pipeline:
-    runs-on: ubuntu-latest  # The environment to run the pipeline job on
-    needs: setup  # Only run after the 'setup' job has completed successfully
+      - name: Run pipeline.py
+        run: python loan_prediction/pipeline.py
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # Checkout the code from your GitHub repo
-
-      - name: Run pipeline
-        run: python pipeline.py  # Run your pipeline script
-
-  build-docker:
-    runs-on: ubuntu-latest  # Run on the latest Ubuntu image
-    needs: run-pipeline  # Only run after the pipeline job completes successfully
+  build-docker-image:
+    needs: run-pipeline  # this ensures that this job runs only after 'run-pipeline' succeeds
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # Checkout the code from your GitHub repo
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Build Docker Image
+      - name: Build Docker image
+        run: docker build -t my-app:latest loan_prediction/
+
+      - name: Commit and push changes
         run: |
-          docker build -t my-app .  # Build your Docker image (my-app)
+          git config --global user.name "${{ secrets.GH_USERNAME }}"
+          git config --global user.email "${{ secrets.GH_EMAIL }}"
+          git commit -am "Automated commit message"
+          git remote set-url origin https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_PAT }}@github.com/${{ secrets.GH_USERNAME }}/loan-prediction.git
+          git push origin HEAD:main
