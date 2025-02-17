@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Fixed typo
+          pip install -r requirements.txt
 
       - name: Run Pipeline
         run: python pipeline.py
@@ -30,8 +30,8 @@ jobs:
         run: |
           git status
           if ! git diff-index --quiet HEAD --; then
-            git config --global user.name "${{ secrets.GH_USERNAME }}"
-            git config --global user.email "${{ secrets.GH_EMAIL }}"
+            git config user.name "${{ secrets.GH_USERNAME }}"
+            git config user.email "${{ secrets.GH_EMAIL }}"
             git add .
             git commit -m "Automated commit from GitHub Actions"
             git push https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_PAT }}@github.com/da-faysal/loan-prediction.git HEAD:main
