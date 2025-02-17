@@ -1,45 +1,28 @@
-name: Run pipeline and build Docker image
+name: Run Pipeline on Push
 
 on:
   push:
     branches:
-      - main  # Change this if needed ok
+      - main
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          if [ -f load_prediction/requirements.txt ]; then
-            pip install -r load_prediction/requirements.txt
-          else
-            echo "requirements.txt not found!" && exit 1
-          fi
-
-      - name: Run pipeline.py
-        run: python load_prediction/pipeline.py
-
-  build-docker-image:
-    needs: run-pipeline
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Build Docker image
-        run: docker build -t my-app:latest load_prediction/
-
+          python -m pip install --upgrade pip
+          pip install -r requirements.text
+          
       - name: Check for changes
         run: |
           git status
