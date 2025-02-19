@@ -1,4 +1,4 @@
-name: Run Pipeline and Push Docker Image
+name: Run Pipeline and Push Docker Image to Dockerhub
 
 on:
   push:
