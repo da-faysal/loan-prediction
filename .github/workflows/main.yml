@@ -68,5 +68,5 @@ jobs:
             docker stop loan-prediction || true
             docker rm loan-prediction || true
             
-            ## Run the new container
+            # Run the new container
             docker run -d --name loan-prediction --restart always -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/loan-prediction:latest
